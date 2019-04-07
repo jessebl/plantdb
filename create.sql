@@ -37,7 +37,43 @@ INSERT INTO species (genus_id, species) VALUES
 	(9, "'Perle von Nurnberg'"),
 	(10, "'California Sunset'");
 
+UPDATE species
+SET common_name = "Garden croton"
+WHERE species_id = 3;
+
+UPDATE species
+SET common_name = "Old man of the Andes"
+WHERE species_id = 5;
+
+UPDATE species
+SET common_name = "Chin cactus"
+WHERE species_id = 6;
+
+UPDATE species
+SET common_name = "Ming thing cactus"
+WHERE species_id = 7;
+
 CREATE VIEW species_flattened AS
-SELECT genus||" "||species,species_id
+SELECT genus||" "||species,common_name,species_id
 FROM species s
 LEFT JOIN genera g ON s.genus_id = g.genus_id;
+
+CREATE TABLE plants (
+	plant_id INTEGER PRIMARY KEY,
+	species_id INTEGER,
+	date_added REAL,
+	birthdate REAL,
+	FOREIGN KEY(species_id) REFERENCES species(species_id)
+);
+
+INSERT INTO plants (species_id) VALUES
+	(1),
+	(2),
+	(3),
+	(4),
+	(5),
+	(6),
+	(7),
+	(8),
+	(9),
+	(10);
