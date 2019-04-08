@@ -8,37 +8,34 @@ import (
 	"gitlab.com/jessebl/plantdb/models"
 )
 
-func getSpeciesFlattened(db *sqlx.DB) []models.SpeciesFlattened {
+func getSpeciesFlattened(db *sqlx.DB) ([]models.SpeciesFlattened, error) {
 	rows, err := db.Queryx("SELECT * FROM species_flattened")
 	if err != nil {
-		fmt.Errorf(err.Error())
+		return nil, err
 	}
 	defer rows.Close()
 	sS := []models.SpeciesFlattened{}
 	for rows.Next() {
 		s := models.SpeciesFlattened{}
 		err = rows.StructScan(&s)
-		if err != nil {
-			fmt.Errorf(err.Error())
-		}
 		sS = append(sS, s)
 	}
-	return sS
+	return sS, err
 }
 
-func getSpecies(db *sqlx.DB) []models.Species {
+func getSpecies(db *sqlx.DB) ([]models.Species, error) {
 	rows, err := db.Queryx("SELECT * FROM species;")
 	if err != nil {
-		fmt.Errorf(err.Error())
+		return nil, err
 	}
 	defer rows.Close()
 	var sS []models.Species
 	for rows.Next() {
 		s := models.Species{}
-		_ = rows.StructScan(&s)
+		err = rows.StructScan(&s)
 		sS = append(sS, s)
 	}
-	return sS
+	return sS, err
 }
 
 func main() {
@@ -47,7 +44,7 @@ func main() {
 	if err != nil {
 		fmt.Errorf(err.Error())
 	}
-	sS := getSpeciesFlattened(db)
+	sS, _ := getSpeciesFlattened(db)
 	for _, s := range sS {
 		fmt.Println(s)
 	}
