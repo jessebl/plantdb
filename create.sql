@@ -2,7 +2,7 @@ PRAGMA foreign_keys = on;
 
 CREATE TABLE genera (
 	genus_id INTEGER PRIMARY KEY,
-	genus TEXT
+	genus TEXT NOT NULL UNIQUE
 );
 
 INSERT INTO genera (genus_id, genus) VALUES
@@ -19,7 +19,7 @@ INSERT INTO genera (genus_id, genus) VALUES
 
 CREATE TABLE species (
 	species_id INTEGER PRIMARY KEY,
-	species TEXT NOT NULL,
+	species TEXT NOT NULL UNIQUE,
 	common_name TEXT,
 	genus_id INTEGER NOT NULL,
 	FOREIGN KEY(genus_id) REFERENCES genera(genus_id)
