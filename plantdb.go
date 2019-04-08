@@ -26,6 +26,21 @@ func getSpeciesFlattened(db *sqlx.DB) []models.SpeciesFlattened {
 	return sS
 }
 
+func getSpecies(db *sqlx.DB) []models.Species {
+	rows, err := db.Queryx("SELECT * FROM species;")
+	if err != nil {
+		fmt.Errorf(err.Error())
+	}
+	defer rows.Close()
+	var sS []models.Species
+	for rows.Next() {
+		s := models.Species{}
+		_ = rows.StructScan(&s)
+		sS = append(sS, s)
+	}
+	return sS
+}
+
 func main() {
 	db, err := sqlx.Connect("sqlite3", "./plant.db")
 	defer db.Close()
