@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
@@ -20,9 +21,24 @@ func species(db *sqlx.DB) ([]models.Species, error) {
 	return sS, err
 }
 
-func setCommonName(db *sqlx.DB, speciesId int, cN string) (int64, error) {
-	q := `UPDATE species SET common_name = ? WHERE species_id = ?`
-	res, err := db.Exec(q, cN, speciesId)
+func setSpeciesProperty(db *sqlx.DB, speciesId int, property string, value string) (int64, error) {
+	switch property {
+	case "SpeciesId":
+		property = "species_id"
+	case "Species":
+		property = "species"
+	case "CommonName":
+		property = "common_name"
+	case "GenusId":
+		property = "genus_id"
+	default:
+		return 0, errors.New("Invalid property")
+	}
+	stmt := "UPDATE species SET " + property + " = ? WHERE species_id = ?;"
+	res, err := db.Exec(stmt, value, speciesId)
+	if err != nil {
+		return 0, err
+	}
 	rA, _ := res.RowsAffected()
 	return rA, err
 }
@@ -34,7 +50,7 @@ func main() {
 	for _, s := range sS {
 		fmt.Println(s)
 	}
-	res, err := setCommonName(db, 2, "yee")
+	res, err := setSpeciesProperty(db, 2, "SpeciesId", "5")
 	fmt.Println("Rows affected:", res, "Errors:", err)
 	sS, _ = speciesFlattened(db)
 	for _, s := range sS {
