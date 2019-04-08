@@ -22,19 +22,27 @@ func species(db *sqlx.DB) ([]models.Species, error) {
 	return sS, err
 }
 
-func setSpeciesProperty(db *sqlx.DB, speciesId int, property string, value string) (int64, error) {
-	//Get db name for property from `db` tag on Species struct
+//structFieldToColumnName gets db column name from `db` tag on the given struct
+//NOTE: strct must be a pointer to a struct
+//TODO: Enforce the above limitation
+func structFieldToColumnName(strct interface{}, field string) (string, error) {
 	var dbProperty string
-	dummy := models.Species{}
-	fields, ok := reflect.TypeOf(&dummy).Elem().FieldByName(property)
+	fields, ok := reflect.TypeOf(strct).Elem().FieldByName(field)
 	if !ok {
-		return 0, errors.New("Invalid property")
+		return "", errors.New("Invalid property")
 	}
 	dbProperty, ok = fields.Tag.Lookup("db")
 	if !ok {
-		return 0, errors.New("Unable to get value from `db` struct tag for field '" + property + "'")
+		return "", errors.New("Unable to get value from `db` struct tag for field '" + field + "'")
 	}
-	stmt := "UPDATE species SET " + dbProperty + " = ? WHERE species_id = ?;"
+	return dbProperty, nil
+
+}
+
+func setSpeciesProperty(db *sqlx.DB, speciesId int, property string, value string) (int64, error) {
+	dummy := models.Species{}
+	colName, err := structFieldToColumnName(&dummy, property)
+	stmt := "UPDATE species SET " + colName + " = ? WHERE species_id = ?;"
 	res, err := db.Exec(stmt, value, speciesId)
 	if err != nil {
 		return 0, err
