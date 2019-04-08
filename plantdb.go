@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"reflect"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
@@ -22,19 +23,18 @@ func species(db *sqlx.DB) ([]models.Species, error) {
 }
 
 func setSpeciesProperty(db *sqlx.DB, speciesId int, property string, value string) (int64, error) {
-	switch property {
-	case "SpeciesId":
-		property = "species_id"
-	case "Species":
-		property = "species"
-	case "CommonName":
-		property = "common_name"
-	case "GenusId":
-		property = "genus_id"
-	default:
+	//Get db name for property from `db` tag on Species struct
+	var dbProperty string
+	dummy := models.Species{}
+	fields, ok := reflect.TypeOf(&dummy).Elem().FieldByName(property)
+	if !ok {
 		return 0, errors.New("Invalid property")
 	}
-	stmt := "UPDATE species SET " + property + " = ? WHERE species_id = ?;"
+	dbProperty, ok = fields.Tag.Lookup("db")
+	if !ok {
+		return 0, errors.New("Unable to get value from `db` struct tag for field '" + property + "'")
+	}
+	stmt := "UPDATE species SET " + dbProperty + " = ? WHERE species_id = ?;"
 	res, err := db.Exec(stmt, value, speciesId)
 	if err != nil {
 		return 0, err
@@ -50,7 +50,7 @@ func main() {
 	for _, s := range sS {
 		fmt.Println(s)
 	}
-	res, err := setSpeciesProperty(db, 2, "SpeciesId", "5")
+	res, err := setSpeciesProperty(db, 2, "CommonName", "Super duper old man of the Andes")
 	fmt.Println("Rows affected:", res, "Errors:", err)
 	sS, _ = speciesFlattened(db)
 	for _, s := range sS {
