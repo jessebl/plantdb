@@ -39,16 +39,19 @@ func structFieldToColumnName(strct interface{}, field string) (string, error) {
 
 }
 
-func setSpeciesProperty(db *sqlx.DB, speciesId int, property string, value string) (int64, error) {
+func setSpeciesProperty(db *sqlx.DB, speciesId int, property string, value string) error {
 	dummy := models.Species{}
 	colName, err := structFieldToColumnName(&dummy, property)
 	stmt := "UPDATE species SET " + colName + " = ? WHERE species_id = ?;"
 	res, err := db.Exec(stmt, value, speciesId)
 	if err != nil {
-		return 0, err
+		return err
 	}
 	rA, _ := res.RowsAffected()
-	return rA, err
+	if rA != 1 {
+		return errors.New("Expected 1 row affected, but " + string(rA) + " rows affected")
+	}
+	return nil
 }
 
 func main() {
@@ -58,8 +61,8 @@ func main() {
 	for _, s := range sS {
 		fmt.Println(s)
 	}
-	res, err := setSpeciesProperty(db, 2, "CommonName", "Super duper old man of the Andes")
-	fmt.Println("Rows affected:", res, "Errors:", err)
+	err := setSpeciesProperty(db, 2, "CommonName", "Super duper old man of the Andes")
+	fmt.Println("Errors:", err)
 	sS, _ = speciesFlattened(db)
 	for _, s := range sS {
 		fmt.Println(s)
