@@ -9,32 +9,14 @@ import (
 )
 
 func getSpeciesFlattened(db *sqlx.DB) ([]models.SpeciesFlattened, error) {
-	rows, err := db.Queryx("SELECT * FROM species_flattened")
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	sS := []models.SpeciesFlattened{}
-	for rows.Next() {
-		s := models.SpeciesFlattened{}
-		err = rows.StructScan(&s)
-		sS = append(sS, s)
-	}
+	var sS []models.SpeciesFlattened
+	err := db.Select(&sS, "SELECT * FROM species_flattened;")
 	return sS, err
 }
 
 func getSpecies(db *sqlx.DB) ([]models.Species, error) {
-	rows, err := db.Queryx("SELECT * FROM species;")
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
 	var sS []models.Species
-	for rows.Next() {
-		s := models.Species{}
-		err = rows.StructScan(&s)
-		sS = append(sS, s)
-	}
+	err := db.Select(&sS, "SELECT * FROM species;")
 	return sS, err
 }
 
