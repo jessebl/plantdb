@@ -9,19 +9,19 @@ import (
 )
 
 func getSpeciesFlattened(db *sqlx.DB) []models.SpeciesFlattened {
-	rows, err := db.Query("SELECT genus||' '||species, species_id, common_name FROM species s LEFT JOIN genera g ON s.genus_id = g.genus_id;")
+	rows, err := db.Queryx("SELECT * FROM species_flattened")
 	if err != nil {
 		fmt.Errorf(err.Error())
 	}
 	defer rows.Close()
 	sS := []models.SpeciesFlattened{}
 	for rows.Next() {
-		var specialName, commonName string
-		var speciesId int
-		_ = rows.Scan(&specialName, &speciesId, &commonName)
-		sS = append(sS, models.SpeciesFlattened{Species: specialName,
-			CommonName: commonName,
-			SpeciesId:  speciesId})
+		s := models.SpeciesFlattened{}
+		err = rows.StructScan(&s)
+		if err != nil {
+			fmt.Errorf(err.Error())
+		}
+		sS = append(sS, s)
 	}
 	return sS
 }

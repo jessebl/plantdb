@@ -19,7 +19,7 @@ INSERT INTO genera (genus_id, genus) VALUES
 
 CREATE TABLE species (
 	species_id INTEGER PRIMARY KEY,
-	species TEXT,
+	species TEXT NOT NULL,
 	common_name TEXT,
 	genus_id INTEGER NOT NULL,
 	FOREIGN KEY(genus_id) REFERENCES genera(genus_id)
@@ -54,7 +54,7 @@ SET common_name = "Ming thing cactus"
 WHERE species_id = 7;
 
 CREATE VIEW species_flattened AS
-SELECT genus||" "||species,common_name,species_id
+SELECT genus||" "||species AS species_name,common_name,species_id
 FROM species s
 LEFT JOIN genera g ON s.genus_id = g.genus_id;
 

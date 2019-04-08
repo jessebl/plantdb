@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"database/sql"
+)
 
 type Genus struct {
 	GenusId int
@@ -8,20 +10,21 @@ type Genus struct {
 }
 
 type Species struct {
-	SpeciesId  int
-	Species    string
-	CommonName string
-	GenusId    int
+	SpeciesId  int            `db:"species_id"`
+	Species    string         `db:"species"`
+	CommonName sql.NullString `db:"common_name"`
+	GenusId    int            `db:"genus_id"`
 }
 
 type Plants struct {
 	PlantId   int
-	SpeciesId int
-	DateAdded time.Time
-	Birthdate time.Time
+	SpeciesId sql.NullInt64
+	DateAdded sql.NullFloat64
+	Birthdate sql.NullFloat64
 }
 
 type SpeciesFlattened struct {
-	Species, CommonName string
-	SpeciesId           int
+	Species    string         `db:"species_name"`
+	CommonName sql.NullString `db:"common_name"`
+	SpeciesId  int            `db:"species_id"`
 }
