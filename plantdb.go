@@ -8,13 +8,13 @@ import (
 	"gitlab.com/jessebl/plantdb/models"
 )
 
-func getSpeciesFlattened(db *sqlx.DB) ([]models.SpeciesFlattened, error) {
+func speciesFlattened(db *sqlx.DB) ([]models.SpeciesFlattened, error) {
 	var sS []models.SpeciesFlattened
 	err := db.Select(&sS, "SELECT * FROM species_flattened;")
 	return sS, err
 }
 
-func getSpecies(db *sqlx.DB) ([]models.Species, error) {
+func species(db *sqlx.DB) ([]models.Species, error) {
 	var sS []models.Species
 	err := db.Select(&sS, "SELECT * FROM species;")
 	return sS, err
@@ -26,7 +26,7 @@ func main() {
 	if err != nil {
 		fmt.Errorf(err.Error())
 	}
-	sS, _ := getSpeciesFlattened(db)
+	sS, _ := speciesFlattened(db)
 	for _, s := range sS {
 		fmt.Println(s)
 	}
