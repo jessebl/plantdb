@@ -5,24 +5,23 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
+	"gitlab.com/jessebl/plantdb/models"
 )
 
-type speciesFlattened struct {
-	species, commonName string
-}
-
-func getSpeciesFlattened(db *sqlx.DB) []speciesFlattened {
-	rows, err := db.Query("SELECT genus||' '||species, common_name FROM species s LEFT JOIN genera g ON s.genus_id = g.genus_id;")
+func getSpeciesFlattened(db *sqlx.DB) []models.SpeciesFlattened {
+	rows, err := db.Query("SELECT genus||' '||species, species_id, common_name FROM species s LEFT JOIN genera g ON s.genus_id = g.genus_id;")
 	if err != nil {
 		fmt.Errorf(err.Error())
 	}
 	defer rows.Close()
-	sS := []speciesFlattened{}
+	sS := []models.SpeciesFlattened{}
 	for rows.Next() {
 		var specialName, commonName string
-		_ = rows.Scan(&specialName, &commonName)
-		sS = append(sS, speciesFlattened{species: specialName,
-			commonName: commonName})
+		var speciesId int
+		_ = rows.Scan(&specialName, &speciesId, &commonName)
+		sS = append(sS, models.SpeciesFlattened{Species: specialName,
+			CommonName: commonName,
+			SpeciesId:  speciesId})
 	}
 	return sS
 }
