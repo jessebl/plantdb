@@ -39,11 +39,11 @@ func structFieldToColumnName(strct interface{}, field string) (string, error) {
 
 }
 
-func setSpeciesProperty(db *sqlx.DB, speciesId int, property string, value string) error {
+func setSpeciesProperty(db *sqlx.DB, speciesID int, property string, value string) error {
 	dummy := models.Species{}
 	colName, err := structFieldToColumnName(&dummy, property)
 	stmt := "UPDATE species SET " + colName + " = ? WHERE species_id = ?;"
-	res, err := db.Exec(stmt, value, speciesId)
+	res, err := db.Exec(stmt, value, speciesID)
 	if err != nil {
 		return err
 	}
